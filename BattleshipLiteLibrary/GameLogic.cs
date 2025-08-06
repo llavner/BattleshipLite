@@ -33,11 +33,6 @@ public class GameLogic
         }
     }
 
-    public static bool PlaceShip(PlayerModel model, string location)
-    {
-        throw new NotImplementedException();
-    }
-
     private static void AddGridSpot(PlayerModel model, string letter, int number)
     {
         GridSpotModel spot = new()
@@ -67,19 +62,93 @@ public class GameLogic
         } while (model.ShipLocations.Count < 5);
     }
 
-    public static bool PlayerStillActive(PlayerModel opponent)
+    public static bool PlayerStillActive(PlayerModel player)
     {
-        throw new NotImplementedException();
+        bool isActive = false;
+
+        foreach (var ship in player.ShipLocations)
+        {
+            if (ship.Status != Enums.GridSpotStatus.Sunk)
+            {
+                isActive = true;
+            }
+        }
+
+        return isActive;
     }
 
-    public static int GetShotCount(PlayerModel winner)
+    public static int GetShotCount(PlayerModel player)
     {
-        throw new NotImplementedException();
+        int shotCount = 0;
+
+        foreach (var shot in player.ShotGrid)
+        {
+            if (shot.Status != Enums.GridSpotStatus.Empty)
+            {
+                shotCount += 1;
+            }
+        }
+
+        return shotCount;
+    }
+    public static bool PlaceShip(PlayerModel model, string location)
+    {
+        bool output = false;
+
+        (string row, int column) = SplitShotIntoRowAndColumn(location);
+
+        bool isValidLocation = ValidateGridLocation(model, row, column);
+        bool isSpotOpen = ValidateShipLocation(model, row, column);
+
+        if (isValidLocation && isSpotOpen)
+        {
+            model.ShipLocations.Add(new GridSpotModel
+            {
+                SpotLetter = row,
+                SpotNumber = column,
+                Status = Enums.GridSpotStatus.Ship
+            });
+
+            output = true;
+        }
+
+        return output;
+    }
+
+    private static bool ValidateShipLocation(PlayerModel model, string row, int column)
+    {
+        bool isValidLocation = true;
+
+        foreach (var ship in model.ShipLocations)
+        {
+            if (ship.SpotLetter == row.ToUpper() && ship.SpotNumber == column)
+            {
+                isValidLocation = false;
+            }
+        }
+
+        return isValidLocation;
+    }
+
+    private static bool ValidateGridLocation(PlayerModel model, string row, int column)
+    {
+        bool isValidGridLocation = false;
+
+        foreach (var shot in model.ShotGrid)
+        {
+            if (shot.Status == Enums.GridSpotStatus.Empty)
+            {
+                isValidGridLocation = true;
+            }
+        }
+
+        return isValidGridLocation;
     }
 
     public static (string row, int column) SplitShotIntoRowAndColumn(string shot)
     {
         throw new NotImplementedException();
+
     }
 
     public static bool ValidateShot(PlayerModel activePlayer, string row, int column)
