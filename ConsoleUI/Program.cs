@@ -6,9 +6,7 @@ using BattleshipLiteLibrary.Models;
 ConsoleMessages.WelcomeMessage();
 
 PlayerModel activePlayer = ConsoleLogic.CreatePlayer("Player 1");
-
 PlayerModel opponent = ConsoleLogic.CreatePlayer("Player 2");
-
 PlayerModel winner = null;
 
 do
@@ -21,7 +19,6 @@ do
 
     if (doesGameContinue == true)
     {
-        // Swap positions, using tuple .Net 7+
         (activePlayer, opponent) = (opponent, activePlayer);
     }
     else
@@ -29,10 +26,9 @@ do
         winner = activePlayer;
     }
 
-    ConsoleLogic.IdentifyWinner(winner);
-
-
 } while (winner == null);
+
+ConsoleLogic.IdentifyWinner(winner);
 
 Console.ReadLine();
 
