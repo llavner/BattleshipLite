@@ -18,6 +18,11 @@ public static class ConsoleMessages
         Console.WriteLine();
     }
 
+    public static void ShipLocationOptions()
+    {
+        Console.WriteLine("Valid Shiplocations are A-E and 1-5");
+    }
+
     public static void GoodByeMessage()
     {
         Console.WriteLine("***************************************************");

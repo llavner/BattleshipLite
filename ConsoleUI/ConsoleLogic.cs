@@ -1,6 +1,5 @@
 ﻿using BattleshipLiteLibrary;
 using BattleshipLiteLibrary.Models;
-using System.ComponentModel.DataAnnotations;
 namespace BattleshipLite;
 
 public static class ConsoleLogic
@@ -48,17 +47,20 @@ public static class ConsoleLogic
             }
             else if (gridsSpot.Status == Enums.GridSpotStatus.Hit)
             {
-                Console.Write(" X ");
+                Console.Write(" X  ");
             }
             else if (gridsSpot.Status == Enums.GridSpotStatus.Miss)
             {
-                Console.Write(" O ");
+                Console.Write(" O  ");
             }
             else
             {
-                Console.Write(" ? ");
+                Console.Write(" ?  ");
             }
         }
+
+        Console.WriteLine();
+        Console.WriteLine();
     }
 
     public static void RecordPlayerShot(PlayerModel activePlayer, PlayerModel opponent)
@@ -69,9 +71,18 @@ public static class ConsoleLogic
 
         do
         {
-            string shot = AskForShot();
-            (row, column) = GameLogic.SplitShotIntoRowAndColumn(shot);
-            isValidShot = GameLogic.ValidateShot(activePlayer, row, column);
+            string shot = AskForShot(activePlayer);
+
+            try
+            {
+                (row, column) = GameLogic.SplitShotIntoRowAndColumn(shot);
+                isValidShot = GameLogic.ValidateShot(activePlayer, row, column);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+                isValidShot = false;
+            }
 
             if (isValidShot == false)
             {
@@ -83,12 +94,28 @@ public static class ConsoleLogic
         bool isAHit = GameLogic.IdentifyShotResult(opponent, row, column);
 
         GameLogic.MarkShotResult(activePlayer, row, column, isAHit);
+
+        DisplayShotResults(row, column, isAHit);
     }
 
-    private static string AskForShot()
+    private static void DisplayShotResults(string row, int column, bool isAHit)
     {
-        Console.Write("Please enter your shot selection: ");
-        string output = Console.ReadLine();
+        if (isAHit)
+        {
+            Console.WriteLine($"{row}{column} is a hit!");
+        }
+        else
+        {
+            Console.WriteLine($"{row}{column} is a miss!");
+        }
+
+        Console.WriteLine();
+    }
+
+    private static string AskForShot(PlayerModel activePlayer)
+    {
+        Console.Write($"{activePlayer.PlayerName}, please enter your shot selection: ");
+        string output = Console.ReadLine().ToUpper().Trim();
 
         return output;
     }
