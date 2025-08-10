@@ -1,4 +1,5 @@
 ﻿using BattleshipLiteLibrary.Models;
+using System.Reflection;
 
 namespace BattleshipLiteLibrary;
 
@@ -50,9 +51,19 @@ public class GameLogic
         do
         {
             Console.Write($"Where do you want to place ship number {model.ShipLocations.Count + 1}: ");
-            string location = Console.ReadLine();
+            string location = Console.ReadLine().ToUpper().Trim();
 
-            bool isValidLocation = GameLogic.PlaceShip(model, location);
+            bool isValidLocation = false;
+
+            try
+            {
+                isValidLocation = GameLogic.PlaceShip(model, location);
+            }
+            catch (Exception ex)
+            {
+
+                Console.WriteLine($"Error: {ex.Message}");
+            }
 
             if (!isValidLocation)
             {
@@ -136,7 +147,7 @@ public class GameLogic
 
         foreach (var shot in model.ShotGrid)
         {
-            if (shot.Status == Enums.GridSpotStatus.Empty)
+            if (shot.SpotLetter == row.ToUpper() && shot.SpotNumber == column)
             {
                 isValidGridLocation = true;
             }
@@ -147,22 +158,75 @@ public class GameLogic
 
     public static (string row, int column) SplitShotIntoRowAndColumn(string shot)
     {
-        throw new NotImplementedException();
+        string row = string.Empty;
+        int column = 0;
+
+        if (shot.Length != 2)
+        {
+            throw new ArgumentException("This was an invalid shot type", nameof(shot));
+        }
+
+        char[] shotArray = shot.ToArray();
+
+        row = shotArray[0].ToString();
+
+        column = int.Parse(shotArray[1].ToString());
+
+        return (row, column);
 
     }
 
-    public static bool ValidateShot(PlayerModel activePlayer, string row, int column)
+    public static bool ValidateShot(PlayerModel player, string row, int column)
     {
-        throw new NotImplementedException();
+        bool isValidShot = false;
+
+        foreach (var gridSpot in player.ShotGrid)
+        {
+            if (gridSpot.SpotLetter == row.ToUpper() && gridSpot.SpotNumber == column)
+            {
+                if (gridSpot.Status == Enums.GridSpotStatus.Empty)
+                {
+                    isValidShot = true;
+                }
+            }
+        }
+
+        return isValidShot;
     }
 
     public static bool IdentifyShotResult(PlayerModel opponent, string row, int column)
     {
-        throw new NotImplementedException();
+        bool isAHit = false;
+
+        foreach (var ship in opponent.ShipLocations)
+        {
+            if (ship.SpotLetter == row.ToUpper() && ship.SpotNumber == column)
+            {
+                isAHit = true;
+                ship.Status = Enums.GridSpotStatus.Sunk;
+            }
+        }
+
+        return isAHit;
     }
 
-    public static void MarkShotResult(PlayerModel activePlayer, string row, int column, bool isAHit)
+    public static void MarkShotResult(PlayerModel player, string row, int column, bool isAHit)
     {
-        throw new NotImplementedException();
+
+        foreach (var gridSpot in player.ShotGrid)
+        {
+            if (gridSpot.SpotLetter == row.ToUpper() && gridSpot.SpotNumber == column)
+            {
+                if (isAHit)
+                {
+                    gridSpot.Status = Enums.GridSpotStatus.Hit;
+                }
+                else
+                {
+                    gridSpot.Status = Enums.GridSpotStatus.Miss;
+                }
+
+            }
+        }
     }
 }
